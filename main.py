@@ -65,6 +65,45 @@ def taxes(population, army):
     return money
 
 
+def bad_harvest(new_seeds):
+    pass
+
+
+def attack():
+    pass
+
+
+def many_rats(seeds):
+    pass
+
+
+def revolution():
+    pass
+
+
+def you_ill(month):
+    month = month + 1
+    return month
+
+
+def new_hero():
+    pass
+
+
+def treasure():
+    pass
+
+
+def epidemy():
+    pass
+
+
+def refugee():
+    pass
+
+
+
+
 # TODO: ситуация
 
 # TODO: вызов функций
@@ -78,6 +117,7 @@ while POPULATION > 0 and DISTEMPER <= 0.65 and ARMY_DISTEMPER <= 0.5 and TERRITO
 
     if MONTH == 1:
         new_SEADS = sowing_seeds(int(input('Сколько зерна засеять')))
+        #bad_harvest()
 
     distribution_seeds()
 
