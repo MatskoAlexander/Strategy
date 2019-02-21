@@ -60,11 +60,18 @@ def sowing_seeds(num_seeds):            #Функция возвращает п�
     return new_seeds
 
 
-def distribution_seeds(seeds, population):
+def distribution_seeds(seeds, population, distemper, army, army_distemper):
     print("Пора раздавать зерно людям")
-    tax = math.ceil(seeds * 0.5 * population)
-    seeds -= tax
-    print("Вы раздали {} мешков зерна народу". format(tax))
+    answer_f1 = int(input('Сколько зерна раздать?\n'))
+    recommend = math.ceil((population - army) * 0.5) + army
+    if answer_f1 < recommend:
+        distemper = math.ceil((distemper * population + math.ceil((recommend - answer_f1) * 3 / 4)) / population)
+        army_distemper = (army_distemper * army + math.ceil((recommend - answer_f1) * 1 / 4)) / army
+        population = population - math.ceil((recommend - answer_f1) / 0.5 * 0.85)
+    seeds = seeds - answer_f1
+    print("Вы раздали {} мешков зерна народу". format(answer_f1))
+    return seeds, population, distemper, army, army_distemper
+
 
 
 def start_war():
@@ -94,7 +101,9 @@ def taxes_and_pay(population, army):
 def bad_harvest(new_seeds):
     rnd = random.randint(1, 20)
     if rnd == 1:
-        new_seeds = new_seeds * (random.randint(70, 90)) / 100
+        new_seeds = new_seeds * (random.randint(60, 80)) / 100
+        print('Вас постиг неурожай')
+    print('Вы собрали {} зерна'.format(new_seeds))
     return new_seeds
 
 
@@ -112,7 +121,7 @@ def revolution():
 
 def you_ill(month):
     print('Вы заболели. Пропуск хода.')
-    month += 2
+    month += 1
     return month
 
 
@@ -135,11 +144,10 @@ def refugee():
 # TODO: ситуация
 
 # TODO: вызов функций
-results = ()
 
 while POPULATION > 0 and DISTEMPER <= 0.65 and ARMY_DISTEMPER <= 0.5 and TERRITORY > 0 and \
         POPULATION / TERRITORY < 1000:
-    print('Народ: {}\nКазна: {}\nЗерно: {}\nСмута: {}\nЗемля: {}\nАрмия: {}\nСмута в армии: {}\nМесяц: {}\n'
+    print('\n\nНарод: {}\nКазна: {}\nЗерно: {}\nСмута: {}\nЗемля: {}\nАрмия: {}\nСмута в армии: {}\nМесяц: {}\n'
           'Год: {}\n'.format(POPULATION, MONEY, SEEDS, DISTEMPER, TERRITORY, ARMY, ARMY_DISTEMPER, MONTH, YEAR))
 
     results_sale = sale_seeds(SEEDS, MONEY)
@@ -159,8 +167,12 @@ while POPULATION > 0 and DISTEMPER <= 0.65 and ARMY_DISTEMPER <= 0.5 and TERRITO
     if MONTH == 4 or MONTH == 10:
         SEEDS = bad_harvest(new_SEEDS)
 
-
-    #distribution_seeds()
+    result_distribution = distribution_seeds(SEEDS, POPULATION, DISTEMPER, ARMY, ARMY_DISTEMPER)
+    SEEDS = result_distribution[0]
+    POPULATION = result_distribution[1]
+    DISTEMPER = result_distribution[2]
+    ARMY = result_distribution[3]
+    ARMY_DISTEMPER = result_distribution[4]
 
     if MONTH % 2 == 0:
         start_war()
@@ -168,14 +180,13 @@ while POPULATION > 0 and DISTEMPER <= 0.65 and ARMY_DISTEMPER <= 0.5 and TERRITO
     if MONTH % 4 == 0:
         answer2 = str(input('Хотите освоить новые территории?\n1)Да\n2)Нет\n')) #что не работает, если найдёте ошибку буду благодарен (Саша)
         if answer2 == 1 or answer2.lower() == 'да':
-            results = conquest_territory()
-            MONEY = MONEY - results[0]
-            SEEDS = SEEDS - results[1]
+            results_conquest = conquest_territory()
+            MONEY = MONEY - results_conquest[0]
+            SEEDS = SEEDS - results_conquest[1]
     if not(MONTH == 3 and YEAR == 1) and MONTH % 4 == 3:
-        TERRITORY = TERRITORY + results[2]
-        POPULATION = POPULATION + results[3]
-        SEEDS = SEEDS + results[4]
-        results = []
+        TERRITORY = TERRITORY + results_conquest[2]
+        POPULATION = POPULATION + results_conquest[3]
+        SEEDS = SEEDS + results_conquest[4]
 
     if MONTH % 3 == 0:
         enlarge_army()
@@ -189,8 +200,10 @@ while POPULATION > 0 and DISTEMPER <= 0.65 and ARMY_DISTEMPER <= 0.5 and TERRITO
         YEAR = YEAR + 1
     MONTH = MONTH + 1
 
-else:
-    print("Условия продолжения игры не выполнены. Ваша страна загнивает. Вы проиграли...")
+
+print("Условия продолжения игры не выполнены. Ваша страна загнивает. Вы проиграли...")
+print('\n\nНарод: {}\nКазна: {}\nЗерно: {}\nСмута: {}\nЗемля: {}\nАрмия: {}\nСмута в армии: {}\nМесяц: {}\n'
+          'Год: {}\n'.format(POPULATION, MONEY, SEEDS, DISTEMPER, TERRITORY, ARMY, ARMY_DISTEMPER, MONTH, YEAR))
 
 # TODO: считывание
 
