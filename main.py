@@ -18,12 +18,13 @@ YEAR = 1
 
 
 def sale_seeds(seeds, money): #Функция возвращает, сколько отбавилось зарна и прибавилось денег
-    trading_countries = ["Соседняя страна желает купить у вас зерна, ", "Не хотите ли продать несколько мешков зерна городу N?"] #Сюда можно добавить ещё больше разных текстов, их тут два чисто для примера
+    trading_countries = ["Соседняя страна желает купить у вас зерна, ",
+                         "Не хотите ли продать несколько мешков зерна городу N?\n"] #Сюда можно добавить ещё больше разных текстов, их тут два чисто для примера
     print(trading_countries[random.randint(0, len(trading_countries) - 1)])
     course = random.randint(20, 35)
     print("Вам предлагают обмен по курсу: {} зол./мешок".format(course))
     try:  
-        seeds_amount = int(input("Сколько мешков продадим? "))
+        seeds_amount = int(input("Сколько мешков продадим?\n"))
     except ValueError:
         seeds_amount = int(input("Введите натуральное число: "))
     if seeds_amount == 0:
@@ -32,6 +33,7 @@ def sale_seeds(seeds, money): #Функция возвращает, скольк
           print("Вы продали {} мешков зерна и получили за это {} золота".format(seeds_amount, seeds_amount * course))
     seeds -= seeds_amount
     money += seeds_amount * course
+    return seeds, money
 
 
 
@@ -39,7 +41,7 @@ def buy_seeds(seeds, money):
     course = random.randint(20, 35)
     print("Есть возможность купить зерно у соседнего города по курсу: {} зол./мешок.".format(course))
     try:  
-        seeds_amount = int(input("Сколько мешков купим? "))
+        seeds_amount = int(input("Сколько мешков купим?\n"))
     except ValueError:
         seeds_amount = int(input("Введите натуральное число: "))
     if seeds_amount == 0:
@@ -48,14 +50,14 @@ def buy_seeds(seeds, money):
           print("Вы купили {} мешков зерна и запатили за это {} золота".format(seeds_amount, seeds_amount * course))
     seeds += seeds_amount
     money -= seeds_amount * course
+    return seeds, money
 
 
 def sowing_seeds(num_seeds):            #Функция возвращает прибавку к зерну
     new_seeds = 0
     for i in range(num_seeds):
-        new_seeds += random.randint(4,8)
-    num_seeds -= num_seeds
-    return num_seeds
+        new_seeds += random.randint(4, 8)
+    return new_seeds
 
 
 def distribution_seeds(seeds, population):
@@ -70,18 +72,12 @@ def start_war():
 
 
 def conquest_territory():
-    result_conquest = []
     costs = random.randint(2000, 4500)
     need_seeds = random.randint(40, 100)
-    new_Territory = random.randint(0, 5)
+    new_territory = random.randint(0, 5)
     people = random.randint(0, 25) - random.randint(0, 20)
     seeds = int(math.ceil(people * 0.5))
-    result_conquest.append(costs)
-    result_conquest.append(need_seeds)
-    result_conquest.append(new_Territory)
-    result_conquest.append(people)
-    result_conquest.append(seeds)
-    return result_conquest
+    return costs, need_seeds, new_territory, people, seeds
 
 
 def enlarge_army():
@@ -96,7 +92,10 @@ def taxes_and_pay(population, army):
 
 
 def bad_harvest(new_seeds):
-    pass
+    rnd = random.randint(1, 20)
+    if rnd == 1:
+        new_seeds = new_seeds * (random.randint(70, 90)) / 100
+    return new_seeds
 
 
 def attack():
@@ -112,6 +111,7 @@ def revolution():
 
 
 def you_ill(month):
+    print('Вы заболели. Пропуск хода.')
     month += 2
     return month
 
@@ -135,24 +135,30 @@ def refugee():
 # TODO: ситуация
 
 # TODO: вызов функций
-results = []
+results = ()
 
 while POPULATION > 0 and DISTEMPER <= 0.65 and ARMY_DISTEMPER <= 0.5 and TERRITORY > 0 and \
         POPULATION / TERRITORY < 1000:
     print('Народ: {}\nКазна: {}\nЗерно: {}\nСмута: {}\nЗемля: {}\nАрмия: {}\nСмута в армии: {}\nМесяц: {}\n'
           'Год: {}\n'.format(POPULATION, MONEY, SEEDS, DISTEMPER, TERRITORY, ARMY, ARMY_DISTEMPER, MONTH, YEAR))
 
-    sale_seeds(SEEDS, MONEY)
+    results_sale = sale_seeds(SEEDS, MONEY)
+    SEEDS = results_sale[0]
+    MONEY = results_sale[1]
 
-    buy_seeds(SEEDS, MONEY)
+    results_buy = buy_seeds(SEEDS, MONEY)
+    SEEDS = results_buy[0]
+    MONEY = results_buy[1]
 
 
     if MONTH == 1 or MONTH == 6:
-        new_SEADS = sowing_seeds(int(input('Сколько зерна засеять?\n')))
-        #bad_harvest()
+        sowing = int(input('Сколько зерна засеять?\n'))
+        new_SEEDS = sowing_seeds(sowing)
+        SEEDS = SEEDS - sowing
 
     if MONTH == 4 or MONTH == 10:
-        SEEDS = SEEDS + new_SEADS
+        SEEDS = bad_harvest(new_SEEDS)
+
 
     #distribution_seeds()
 
@@ -162,8 +168,7 @@ while POPULATION > 0 and DISTEMPER <= 0.65 and ARMY_DISTEMPER <= 0.5 and TERRITO
     if MONTH % 4 == 0:
         answer2 = str(input('Хотите освоить новые территории?\n1)Да\n2)Нет\n')) #что не работает, если найдёте ошибку буду благодарен (Саша)
         if answer2 == 1 or answer2.lower() == 'да':
-            results.extend(conquest_territory())
-            print(results)
+            results = conquest_territory()
             MONEY = MONEY - results[0]
             SEEDS = SEEDS - results[1]
     if not(MONTH == 3 and YEAR == 1) and MONTH % 4 == 3:
