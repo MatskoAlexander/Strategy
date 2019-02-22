@@ -16,11 +16,11 @@ YEAR = 1
 # TODO: functions
 
 
-def sale_seeds(seeds, money): #Функция возвращает, сколько отбавилось зарна и прибавилось денег
-    trading_countries = ["Соседняя страна желает купить у вас зерна, ",
-                         "Не хотите ли продать несколько мешков зерна городу N?"] #Сюда можно добавить ещё больше разных текстов, их тут два чисто для примера
-    print(trading_countries[random.randint(0, len(trading_countries) - 1)])
+def sale_seeds(seeds, money):
     course = random.randint(20, 35)
+    trading_countries = ["Соседняя страна желает купить у вас зерна, ",
+                         "Не хотите ли продать несколько мешков зерна городу N?"]
+    print(trading_countries[random.randint(0, len(trading_countries) - 1)])
     print("Вам предлагают обмен по курсу: {} зол./мешок".format(course))
     try:
         seeds_amount = int(input("Сколько мешков продадим?\n"))
@@ -57,7 +57,7 @@ def buy_seeds(seeds, money):
     return seeds, money
 
 
-def sowing_seeds(num_seeds):            #Функция возвращает прибавку к зерну
+def sowing_seeds(num_seeds):
     new_seeds = 0
     for i in range(num_seeds):
         new_seeds += random.randint(3, 5)
@@ -103,16 +103,16 @@ def start_war(army):
         if variaty == 0:
             print("Вы победили в войне, захватив ", conquested_territory, " земля, ", conquest_money, " золота, ",
                   conquest_population, " людей. Поздравляем!")
-            return [conquest_territory, conquest_money, conquest_population, army]
+            return [conquested_territory, conquest_money, conquest_population, army]
         else:
             conquest_money = -conquest_money
-            conquested_territory = -conquest_territory
+            conquested_territory = -conquested_territory
             conquest_population = -conquest_population
             print("Вы проиграли в войне, потеряв ", -conquested_territory, " земля, ", -conquest_money, " золота, ",
                   -conquest_population, " людей. Бывает.")
             return [conquested_territory, conquest_money, conquest_population, army]
     else:
-        print("Такой шанс упускаете.\n")
+        print("Такой шанс упускаете.")
         return [0, 0, 0, army]
 
 
@@ -141,10 +141,12 @@ def enlarge_army(army, population):
 
 
 def taxes_and_pay(population, army):
-    money = (population - army) * 10
+    money = int((population - army) * 10)
+    if money < 0:
+        money = 0
     pay = army * 12
     total = money - pay
-    print("\nВы получили налоги: {} золота. Вы заплатили жалование армии: {} золота. Итого: +{} золота".
+    print("\nВы получили налоги: {} золота. Вы заплатили жалование армии: {} золота. Итого: {} золота".
           format(money, pay, total))
     return total
 
@@ -202,7 +204,7 @@ def epidemy(population, army):
     rnd = random.randint(1, 20)
     if rnd == 1:
         dead_population = int(population - population // 1.5)
-        population = population  // 1.5
+        population = population // 1.5
         dead_army = int(army - army // 1.25)
         army = army // 1.25
         print('\nВас настигла эпидемия. Умерло: {} народ, {} армия'.format(dead_population, dead_army))
@@ -226,10 +228,13 @@ def people_needs(money, distemper):
     if rnd2 == 1:
         need_money = random.randint(2000, 5000)
         print(needs[rnd1])
-        answerf2 = input("Для этого требуется: {} золота. Поможите?\n1)Да\n2)Нет\n".format(need_money))
-        if answerf2 == 1 or answerf2.lower() == "да":
+        answerf2 = input("Для этого требуется: {} золота. У вас {} золота. Поможите?\n1)Да\n2)Нет\n".
+                         format(need_money, money))
+        if answerf2 == 1 or answerf2.lower() == "да" or answerf2 == "1":
             money = money - need_money
             distemper = distemper - random.randint(1, 4) / 100
+            if distemper < 0:
+                distemper = 0
             print("Вы помогли своему народу потратив {} золота. Смута понизилась".format(need_money))
         else:
             distemper = distemper + random.randint(1, 4) / 100
@@ -272,6 +277,8 @@ while POPULATION > 0 and DISTEMPER <= 0.65 and ARMY_DISTEMPER <= 0.5 and TERRITO
     DISTEMPER = result_distribution[2]
     ARMY = result_distribution[3]
     ARMY_DISTEMPER = result_distribution[4]
+    if POPULATION == 0:
+        break
 
     if MONTH % 4 == 0:
         result_conquest = conquest_territory()
