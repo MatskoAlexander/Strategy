@@ -143,9 +143,10 @@ def enlarge_army(army, population):
 def taxes_and_pay(population, army):
     money = (population - army) * 10
     pay = army * 12
-    print("\nВы получили налоги: {} золота. Вы заплатили жалование армии: {} золота.".format(money, pay))
-    money -= pay
-    return money
+    total = money - pay
+    print("\nВы получили налоги: {} золота. Вы заплатили жалование армии: {} золота. Итого: +{} золота".
+          format(money, pay, total))
+    return total
 
 
 def bad_harvest(new_seeds):
