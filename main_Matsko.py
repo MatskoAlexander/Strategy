@@ -92,8 +92,29 @@ def distribution_seeds(seeds, population0, distemper, army, army_distemper):
     return seeds, population1, distemper, army, army_distemper
 
 
-def start_war():
-    pass
+def start_war(army):
+    voyna = str(input('\nХотите развлечься и развязать войну?\n'))
+    if voyna.lower() == 'да':
+        variaty = random.randint(0, 1)
+        conqest_territory = math.ceil(random.randint(3, 6))
+        conqest_money = math.ceil(random.randint(5000, 10000))
+        conqest_population = math.ceil(random.randint(100, 500))
+        killed_army = math.ceil(random.randint(11, 13))
+        army = army // (killed_army / 10)
+        if variaty == 0:
+            print("Вы победили в войне, захватив ", conqest_territory, " км2, ", conqest_money, " золота, ",
+                  conqest_population, " людей. Поздравляем!")
+            return [conqest_territory, conqest_money, conqest_population, army]
+        else:
+            conqest_money = -conqest_money
+            conqest_territory = -conqest_territory
+            conqest_population = -conqest_population
+            print("Вы проиграли в войне, потеряв ", -conqest_territory, " км2, ", -conqest_money, " золота, ",
+                  -conqest_population, " людей. Бывает.")
+            return [conqest_territory, conqest_money, conqest_population, army]
+    else:
+        print("Такой шанс упускаете.\n")
+        return [0, 0, 0, army]
 
 
 def conquest_territory():
@@ -114,8 +135,11 @@ def conquest_territory():
 
 
 
-def enlarge_army():
-    pass
+def enlarge_army(army, population):
+    print("\nЗакончился призыв, на службу в вашу армию поступило ", POPULATION // 20, " человек")
+    army += population // 20
+    population -= population // 20
+    return army, population
 
 
 def taxes_and_pay(population, army):
@@ -139,33 +163,52 @@ def attack():
 
 
 def many_rats(seeds):
-    pass
+    rnd = random.randint(1, 20)
+    if rnd == 1:
+        lost_seeds = int(seeds * random.randint(3, 5) / 10)
+        seeds = seeds - lost_seeds
+        print("\nВ амбарах развелись крысы. Вы потеряли: {} зерно".format(lost_seeds))
+    return seeds
 
 
-def revolution():
-    pass
-
-
-def you_ill(month):
-    print("Вы заболели. Пропуск хода.")
-    month += 1
-    return month
-
+def revolution(distemper):
+    rnd = random.randint(1, 50)
+    if rnd == 1:
+        print('\nПроизошло восстание. Смута повысилась')
+        distemper = distemper + random.randint(1, 10) / 100
+    return distemper
 
 def new_hero():
     pass
 
 
-def treasure():
-    pass
+def treasure(money):
+    rnd = random.randint(1, 20)
+    if rnd == 1:
+        get_treasure = + random.randint(15000, 30000)
+        money = money + get_treasure
+        print('\nВы нашли клад: {} золото'.format(get_treasure))
+    return money
 
 
-def epidemy():
-    pass
+def epidemy(population, army):
+    rnd = random.randint(1, 20)
+    if rnd == 1:
+        dead_population = int(population - population // 1.5)
+        population = population  // 1.5
+        dead_army = int(army - army // 1.25)
+        army = army // 1.25
+        print('\nВас настигла эпидемия. Умерло: {} народ, {} армия'.format(dead_population, dead_army))
+    return population, army
 
+def refugee(population):
+    rnd = random.randint(1, 10)
+    if rnd == 1:
+        new_people = random.randint(50, 300)
+        population = population + new_people
+        print("\nК вам прибыло {} беженцы".format(new_people))
+    return population
 
-def refugee():
-    pass
 
 
 # TODO: ситуация
@@ -203,10 +246,7 @@ while POPULATION > 0 and DISTEMPER <= 0.65 and ARMY_DISTEMPER <= 0.5 and TERRITO
     ARMY = result_distribution[3]
     ARMY_DISTEMPER = result_distribution[4]
 
-    if MONTH % 2 == 0:
-        start_war()
-
-    if MONTH % 1 == 0:
+    if MONTH % 4 == 0:
         result_conquest = conquest_territory()
         MONEY = MONEY - result_conquest[0]
         SEEDS = SEEDS - result_conquest[1]
@@ -219,11 +259,28 @@ while POPULATION > 0 and DISTEMPER <= 0.65 and ARMY_DISTEMPER <= 0.5 and TERRITO
                               result_conquest[4]))
 
     if MONTH % 3 == 0:
-        enlarge_army()
+        results_enlarge = enlarge_army(ARMY, POPULATION)
+        ARMY = results_enlarge[0]
+        POPULATION = results_enlarge[1]
+
+    POPULATION = refugee(POPULATION)
+
+    if MONTH % 2 == 0:
+        results_war = start_war(ARMY)
+        TERRITORY = int(TERRITORY + results_war[0])
+        MONEY = int(MONEY + results_war[1])
+        POPULATION = int(POPULATION + results_war[2])
+        ARMY = int(results_war[3])
 
     new_MONEY = taxes_and_pay(POPULATION, ARMY)
-
     MONEY = MONEY + new_MONEY
+
+    SEEDS = many_rats(SEEDS)
+    DISTEMPER = revolution(DISTEMPER)
+    MONEY = treasure(MONEY)
+    results_epidemy = epidemy(POPULATION, ARMY)
+    POPULATION = int(results_epidemy[0])
+    ARMY = int(results_epidemy[1])
 
     if MONTH == 12:
         MONTH = 0
