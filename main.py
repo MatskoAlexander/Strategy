@@ -474,4 +474,6 @@ if TERRITORY <= 0:
 if POPULATION / TERRITORY > 200:
     print("\nВ вашем королевстве слишком тесно. Народ требует земли! Вы проиграли...")
 print("\nНарод: {}\nКазна: {}\nЗерно: {}\nСмута: {}\nЗемля: {}\nАрмия: {}\nСмута в армии: {}\nМесяц: {}\n"
-          "Год: {}\n".format(POPULATION, MONEY, SEEDS, DISTEMPER, TERRITORY, ARMY, ARMY_DISTEMPER, MONTH, YEAR))
+          "Год: {}\n\nСпасибо, что сыграли в эту игру.\nРазработчики:\nМацько А.М.\nГрасмик Р.А.\nТаранец Д.В."
+      "".format(POPULATION, MONEY, SEEDS, DISTEMPER, TERRITORY, ARMY, ARMY_DISTEMPER, MONTH, YEAR))
+
