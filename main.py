@@ -13,8 +13,6 @@ FERTILITY = 20
 MONTH = 1
 YEAR = 1
 
-# TODO: functions
-
 
 def sale_seeds(seeds, money):
     course = random.randint(20, 35)
@@ -28,7 +26,7 @@ def sale_seeds(seeds, money):
         seeds_amount = int(input("Введите натуральное число: "))
     if seeds_amount == 0:
           print("Вы отказались торговать. Каждый остался при своём")
-    elif seeds_amount != 0 and seeds_amount <= seeds:
+    elif 0 < seeds_amount <= seeds:
           print("Вы продали {} мешков зерна и получили за это {} золота".format(seeds_amount, seeds_amount * course))
           seeds -= seeds_amount
           money += seeds_amount * course
@@ -47,7 +45,7 @@ def buy_seeds(seeds, money):
         seeds_amount = int(input("Введите натуральное число: "))
     if seeds_amount == 0:
         print("Вы отказались торговать. Каждый остался при своём")
-    elif seeds_amount != 0 and seeds_amount * course <= money:
+    elif seeds_amount > 0 and seeds_amount * course <= money:
         print("Вы купили {} мешков зерна и запатили за это {} золота".format(seeds_amount, seeds_amount * course))
         seeds += seeds_amount
         money -= seeds_amount * course
@@ -135,8 +133,8 @@ def conquest_territory():
 
 def enlarge_army(army, population):
     print("\nЗакончился призыв, на службу в вашу армию поступило ", POPULATION // 20, " человек")
-    army += population // 20
-    population -= population // 20
+    army += int(population // 20)
+    population -= int(population // 20)
     return army, population
 
 
@@ -160,8 +158,94 @@ def bad_harvest(new_seeds):
     return new_seeds
 
 
-def attack():
-    pass
+def suddenly_attacked(population, money, territory, distemper, army):
+    print("\nНА ВАС НАПАЛИ! Придётся защищать государство от врага.")
+    enemy_army = army * (random.randint(50, 500) / 100)
+    win_chance = 0.5
+    check = 0
+    if enemy_army <= army:
+        win_chance += enemy_army / army
+        print("Так как ваша армия больше, чем у соперника, шансы на победу увеличиваются(армия соперника составляет"
+              " всего {}% от вашей".format(math.ceil(enemy_army / army * 100)))
+    else:
+        win_chance -= ARMY / enemy_army / 5
+        print("Так как ваша армия меньше, чем у соперника, шансы на победу понижаются(армия соперника составляет в"
+              " {} раз больше вашей".format(math.ceil(enemy_army / army)))
+    win = random.randint(1, 100)
+    new_tactic = str(input("Не хотите ли вы испробовать новую боевую тактику от одного из опытных полководцев?\n"
+                            "Если она сработает, мы выиграем эту войну абсолютно без потерь\n"
+                            "(вероятность победы в таком случае будет равняться двадцати процентам)."
+                            "\nНо если проиграем, то потери будут невосполнимыми\n1)Да\n2)Нет\n"))
+    if new_tactic == "1" or new_tactic.lower() == 'Да':
+        win_chance = 0.2
+        check = 0.2
+    if win_chance*100 <= win:
+        print("Ура! вы победили!")
+        if win_chance == 0.2 and check == 0.2:
+            print("Так как вы воспользовались новой боевой тактикой вы завершили войну без потерь. Смута понизилась")
+            distemper = distemper - random.randint(20, 50) / 100
+            if distemper < 0:
+                distemper = 0
+        else:
+            dead_population = int(population * random.randint(20, 40) / 100)
+            new_territory = random.randint(1, 3)
+            lost_money = int((1 - win_chance) * random.randint(80, 95) / 100 * money)
+            distemper = distemper - random.randint(10, 30) / 100
+            if distemper < 0:
+                distemper = 0
+            dead_army = int(army * (win_chance + random.randint(3, 14) / 100))
+            new_population = random.randint(50, 300)
+            get_money = random.randint(1500, 5000)
+            if army - dead_army < 0:
+                dead_army = army
+                army = 0
+            else:
+                army = army - dead_army
+            print("Война завершилась следующим образом:"
+                  "\nПотери: убито {} народ, уничтожено {} армия, потрачено {} золота;"
+                  "\nПриобретения: {} земля, {} народ, компенсация {} золота, смута понизилась."
+                  "".format(dead_population, dead_army, lost_money, new_territory, new_population, get_money))
+            population = population - dead_population + new_population
+            money = money - lost_money + get_money
+            territory = territory + new_territory
+    else:
+        print("Вы проиграли эту войну.")
+        if win_chance == 0.2 and check == 0.2:
+            print("Так как вы воспользовались новой боевой тактикой потери оказались колоссальными.")
+            dead_population = int(population * random.randint(40, 75) / 100)
+            lost_territory = random.randint(4, 11)
+            if territory - lost_territory < 0:
+                lost_territory = territory
+                territory = 0
+            else:
+                territory = territory - lost_territory
+            lost_money = int(random.randint(75, 90) / 100 * money)
+            dead_army = int(army * random.randint(80, 90) / 100)
+            money = money - lost_money
+            army = army - dead_army
+            population = population - dead_population
+            distemper = distemper + random.randint()
+            print("Война завершилась следующим образом:"
+                  "\nПотери: убито {} народ, уничтожено {} армия, потрачено {} золота, потерена {} земля, "
+                  "смута повысилась.".format(dead_population, dead_army, lost_money, lost_territory))
+        else:
+            dead_population = int(population * random.randint(40, 75) / 100)
+            lost_territory = random.randint(2, 5)
+            if territory - lost_territory < 0:
+                lost_territory = territory
+                territory = 0
+            else:
+                territory = territory - lost_territory
+            lost_money = int(random.randint(55, 75) / 100 * money)
+            dead_army = int(army * random.randint(50, 75) / 100)
+            money = money - lost_money
+            army = army - dead_army
+            population = population - dead_population
+            distemper = distemper + random.randint()
+            print("Война завершилась следующим образом:"
+                  "\nПотери: убито {} народ, уничтожено {} армия, потрачено {} золота, потерена {} земля, "
+                  "смута повысилась.".format(dead_population, dead_army, lost_money, lost_territory))
+    return [population, money, territory, distemper, army]
 
 
 def many_rats(seeds):
@@ -242,10 +326,6 @@ def people_needs(money, distemper):
     return money, distemper
 
 
-# TODO: ситуация
-
-# TODO: вызов функций
-
 print("\nПриветсвуею, правитель! Вы управляете небольшим государством. Вам предстоит решать его судьбу. Дерзайте!")
 while POPULATION > 0 and DISTEMPER <= 0.65 and ARMY_DISTEMPER <= 0.5 and TERRITORY > 0 and \
         POPULATION / TERRITORY < 1000:
@@ -280,6 +360,15 @@ while POPULATION > 0 and DISTEMPER <= 0.65 and ARMY_DISTEMPER <= 0.5 and TERRITO
     if POPULATION == 0:
         break
 
+    rnd = random.randint(1, 20)
+    if rnd == 1:
+        results_attack = suddenly_attacked(POPULATION, MONEY, TERRITORY, DISTEMPER, ARMY)
+        POPULATION = results_attack[0]
+        MONEY = results_attack[1]
+        TERRITORY = results_attack[2]
+        DISTEMPER = results_attack[3]
+        ARMY = results_attack[4]
+
     if MONTH % 4 == 0:
         result_conquest = conquest_territory()
         MONEY = MONEY - result_conquest[0]
@@ -287,9 +376,9 @@ while POPULATION > 0 and DISTEMPER <= 0.65 and ARMY_DISTEMPER <= 0.5 and TERRITO
         TERRITORY = TERRITORY + result_conquest[2]
         POPULATION = POPULATION + result_conquest[3]
         SEEDS = SEEDS + result_conquest[4]
-        print("\nНа освоение территорий было потрачено: {} золото, {} зерна."
-              "\nВ ходе освоения территории было получено: {} земля.".format(result_conquest[0], result_conquest[1],
-                                                                             result_conquest[2]))
+        if result_conquest[0] != 0:
+            print("\nНа освоение территорий было потрачено: {} золото, {} зерна.\nВ ходе освоения территории было"
+                  " получено: {} земля.".format(result_conquest[0],result_conquest[1], result_conquest[2]))
 
     if MONTH % 3 == 0:
         results_enlarge = enlarge_army(ARMY, POPULATION)
@@ -328,7 +417,3 @@ while POPULATION > 0 and DISTEMPER <= 0.65 and ARMY_DISTEMPER <= 0.5 and TERRITO
 print("Условия продолжения игры не выполнены. Ваша страна загнивает. Вы проиграли...")
 print("\n\nНарод: {}\nКазна: {}\nЗерно: {}\nСмута: {}\nЗемля: {}\nАрмия: {}\nСмута в армии: {}\nМесяц: {}\n"
           "Год: {}\n".format(POPULATION, MONEY, SEEDS, DISTEMPER, TERRITORY, ARMY, ARMY_DISTEMPER, MONTH, YEAR))
-
-# TODO: считывание
-
-# TODO: операции
